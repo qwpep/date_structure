@@ -1,0 +1,130 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct Date
+{
+    int day;
+    int month;
+    int year;
+
+    bool isValidDate() const // Проверка на действительность даты
+    {
+        if (year < 1 || month < 1 || month > 12 || day < 1)
+            return false;
+
+        static const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        int maxDays = daysInMonth[month];
+        if (month == 2 && (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)))
+            maxDays = 29;
+        return day <= maxDays;
+    }
+
+    string getDayOfWeek() const // День недели даты
+    {
+        static const string days[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        int tyear = year - (14 - month) / 12;
+        int tmonth = month + 12 * ((14 - month) / 12) - 2;
+        int dayOfWeek = (day + tyear + tyear / 4 - tyear / 100 + tyear / 400 + (31 * tmonth) / 12) % 7;
+        return days[dayOfWeek];
+    }
+
+    int calculateDifference(const Date &date) const // Просчет разницы в днях между датами
+    {
+        static const int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+        int days1 = year * 365 + day;
+        for (int i = 0; i < month; ++i)
+            days1 += daysInMonth[i];
+        if (month > 2 && (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)))
+            days1++;
+
+        int days2 = date.year * 365 + date.day;
+        for (int i = 0; i < date.month; ++i)
+            days2 += daysInMonth[i];
+        if (date.month > 2 && (date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0)))
+            days2++;
+
+        return days2 - days1;
+    }
+
+    void printDate() const // Вывод даты в письменном виде
+    {
+        static const string monthNames[] = {"January", "February", "March", "April", "May", "June", "July",
+                                            "August", "September", "October", "November", "December"};
+        cout << monthNames[month - 1] << " " << day << ", " << year << endl;
+    }
+
+    bool operator<(const Date &date) const // Сравнение даты
+    {
+        if (year < date.year)
+            return true;
+        if (year > date.year)
+            return false;
+        if (month < date.month)
+            return true;
+        if (month > date.month)
+            return false;
+        return day < date.day;
+    }
+};
+
+int main()
+{
+    Date date1;
+    Date date2;
+
+    bool validDate1 = false;
+    while (!validDate1)
+    {
+        cout << "Enter date 1 (day month year): ";
+        cin >> date1.day >> date1.month >> date1.year;
+        if (date1.isValidDate()) // Проверка первой даты на действительность    
+        {
+            validDate1 = true;
+            cout << "Date 1 is valid." << endl;
+        }
+        else
+        {
+            cout << "Invalid date. Please enter a valid date." << endl;
+        }
+    }
+
+    bool validDate2 = false;
+    while (!validDate2)
+    {
+        cout << "Enter date 2 (day month year): ";
+        cin >> date2.day >> date2.month >> date2.year;
+        if (date2.isValidDate()) // Проверка второй даты на действительность
+        {
+            validDate2 = true;
+            cout << "Date 2 is valid." << endl;
+        }
+        else
+        {
+            cout << "Invalid date. Please enter a valid date." << endl;
+        }
+    }
+    
+    cout << "The first date is: ";
+    date1.printDate(); // Вывод  первой даты в письменном виде
+    cout << "The second date is: ";
+    date2.printDate(); // Вывод  второй даты в письменном виде
+
+    cout << endl << "Difference in days: " << date1.calculateDifference(date2) << endl; // Вывод разницы дат в днях
+
+    if (date1 < date2) // Сравнение дат
+    {
+        cout << endl << "Date 1 is earlier than Date 2" << endl;
+    }
+    else
+    {
+        cout << endl << "Date 1 is not earlier than Date 2" << endl;
+    }
+
+    cout << endl << "Day of the week for Date 1: " << date1.getDayOfWeek() << endl; // День недели первой даты
+    cout << "Day of the week for Date 2: " << date2.getDayOfWeek() << endl; // День недели второй даты
+
+    return 0;
+}
